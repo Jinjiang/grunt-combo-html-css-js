@@ -17,14 +17,14 @@ Once the plugin has been installed, it may be enabled inside your Gruntfile with
 grunt.loadNpmTasks('grunt-combo-html-css-js');
 ```
 
-## The "combo_html_css_js" task
+## The "comboall" task
 
 ### Overview
-In your project's Gruntfile, add a section named `combo_html_css_js` to the data object passed into `grunt.initConfig()`.
+In your project's Gruntfile, add a section named `comboall` to the data object passed into `grunt.initConfig()`.
 
 ```js
 grunt.initConfig({
-  combo_html_css_js: {
+  comboall: {
     options: {
       // Task-specific options go here.
     },
@@ -35,52 +35,55 @@ grunt.initConfig({
 });
 ```
 
-### Options
-
-#### options.separator
-Type: `String`
-Default value: `',  '`
-
-A string value that is used to do something with whatever.
-
-#### options.punctuation
-Type: `String`
-Default value: `'.'`
-
-A string value that is used to do something else with whatever else.
-
 ### Usage Examples
 
-#### Default Options
-In this example, the default options are used to do something with whatever. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result would be `Testing, 1 2 3.`
+In this example, `src/target.html` is the source file which may has some `<link>` or `<script>` tags to use css / javascript file. And `dest/combo.html` is the will-built file which join all relative css / javascript files and the own html together.
+
+#### Source File `src/target.html`:
+
+```html
+<html>
+...
+<link rel="stylesheet" href="http://example.com/style.css">
+<link rel="stylesheet" href="style.css">
+...
+<script src="http://example.com/script.js"></script>
+<script src="script.js"></script>
+...
+</html>
+```
+
+#### Grunt File `Gruntfile.js`:
 
 ```js
 grunt.initConfig({
-  combo_html_css_js: {
-    options: {},
+  comboall: {
     files: {
-      'dest/default_options': ['src/testing', 'src/123'],
+      'dest/combo.html': ['src/target.html'],
     },
   },
 });
 ```
 
-#### Custom Options
-In this example, custom options are used to do something else with whatever else. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result in this case would be `Testing: 1 2 3 !!!`
+#### Generated File `dest/combo.html`
 
-```js
-grunt.initConfig({
-  combo_html_css_js: {
-    options: {
-      separator: ': ',
-      punctuation: ' !!!',
-    },
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
-  },
-});
+```html
+<html>
+...
+<link rel="stylesheet" href="http://example.com/style.css">
+<style>
+/* file content from `src/style.css` */
+</style>
+...
+<script src="http://example.com/script.js"></script>
+<script>
+/* file content from `src/script.js` */
+</script>
+...
+</html>
 ```
+
+Note: the absolute css or javascript link will not be joined, but still use the external way.
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
