@@ -8,22 +8,55 @@
 
 'use strict';
 
-module.exports = function(grunt) {
+var path = require('path');
+
+module.exports = function (grunt) {
 
   // Please see the Grunt documentation for more information regarding task
   // creation: http://gruntjs.com/creating-tasks
 
-  grunt.registerMultiTask('combo_html_css_js', 'Combine css links and javscript files to html file with inline tags automatically', function() {
+  /**
+   * find all stylesheet links and javascript tags,
+   * read the css/js file to fill in the html code
+   * 
+   * @param  {string} filepath
+   * @return {string}
+   */
+  function combo(filepath) {
+    var cssHrefPattern = /<link(?:[^>]*) href="(.+)"(?:[^>]*)>/g;
+    var jsSrcPattern = /<script(?:[^>]*) src="(.+)"(?:[^>]*)>/g;
+
+    var html = grunt.file.read(filepath);
+
+    html = html.replace(cssHrefPattern, function (openTag, href) {
+      if (href.match(/\:/)) {
+        return openTag;
+      }
+      return '<style>\n' + grunt.file.read(path.join(filepath, '../', href)) + '\n</style>';
+    });
+
+    html = html.replace(jsSrcPattern, function (openTag, src) {
+      if (src.match(/\:/)) {
+        return openTag;
+      }
+      return '<script>\n' + grunt.file.read(path.join(filepath, '../', src)) + '\n';
+    });
+
+    return html;
+  }
+
+  grunt.registerMultiTask('comboall', 'Combine css links and javscript files to html file with inline tags automatically', function() {
     // Merge task-specific and/or target-specific options with these defaults.
     var options = this.options({
-      punctuation: '.',
-      separator: ', '
+      extDot: 'last',
+      ext: '.combo.html'
     });
 
     // Iterate over all specified file groups.
-    this.files.forEach(function(f) {
+    this.files.forEach(function (f) {
+
       // Concat specified files.
-      var src = f.src.filter(function(filepath) {
+      var src = f.src.filter(function (filepath) {
         // Warn on and remove invalid source files (if nonull was set).
         if (!grunt.file.exists(filepath)) {
           grunt.log.warn('Source file "' + filepath + '" not found.');
@@ -31,19 +64,35 @@ module.exports = function(grunt) {
         } else {
           return true;
         }
-      }).map(function(filepath) {
+      }).forEach(function (filepath) {
+        var dest = f.dest;
+        var dotIndex;
+
+        // Handle options.
+        if (!dest) {
+          if (options.extDot === 'last') {
+            dotIndex = filepath.lastIndexOf('.');
+          }
+          else {
+            dotIndex = filepath.indexOf('.');
+          }
+          if (dotIndex >= 0) {
+            dest = filepath.substr(0, dotIndex) + options.ext;
+          }
+          else {
+            dest = filepath + options.ext;
+          }
+        }
+
         // Read file source.
-        return grunt.file.read(filepath);
-      }).join(grunt.util.normalizelf(options.separator));
+        var html = combo(filepath);
 
-      // Handle options.
-      src += options.punctuation;
+        // Write the destination file.
+        grunt.file.write(dest, html);
 
-      // Write the destination file.
-      grunt.file.write(f.dest, src);
-
-      // Print a success message.
-      grunt.log.writeln('File "' + f.dest + '" created.');
+        // Print a success message.
+        grunt.log.writeln('File "' + dest + '" created.');
+      });
     });
   });
 
