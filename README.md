@@ -58,10 +58,13 @@ In this example, `src/target.html` is the source file which may has some `<link>
 ```js
 grunt.initConfig({
   comboall: {
-    files: {
-      'dest/combo.html': ['src/target.html'],
-    },
-  },
+      main:{
+        files: [
+            {'dest/combo.html': ['src/target.html']}
+        ]
+    }
+  }
+
 });
 ```
 
