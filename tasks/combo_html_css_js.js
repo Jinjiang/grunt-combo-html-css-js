@@ -23,20 +23,20 @@ module.exports = function (grunt) {
    * @return {string}
    */
   function combo(filepath) {
-    var cssHrefPattern = /<link(?:[^>]*) href="(.+)"(?:[^>]*)>/g;
-    var jsSrcPattern = /<script(?:[^>]*) src="(.+)"(?:[^>]*)>/g;
+    var cssHrefPattern = /<link(?:[^>]*) href="([^"]+)"(?:[^>]*)>/g;
+    var jsSrcPattern = /<script(?:[^>]*) src="([^"]+)"(?:[^>]*)>/g;
 
     var html = grunt.file.read(filepath);
 
     html = html.replace(cssHrefPattern, function (openTag, href) {
-      if (href.match(/\:/)) {
+      if (href.match(/\/\//)) {
         return openTag;
       }
       return '<style>\n' + grunt.file.read(path.join(filepath, '../', href)) + '\n</style>';
     });
 
     html = html.replace(jsSrcPattern, function (openTag, src) {
-      if (src.match(/\:/)) {
+      if (src.match(/\/\//)) {
         return openTag;
       }
       return '<script>\n' + grunt.file.read(path.join(filepath, '../', src)) + '\n';
