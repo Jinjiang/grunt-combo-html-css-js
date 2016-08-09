@@ -28,7 +28,7 @@ exports.combo_html_css_js = {
     done();
   },
   default_options: function(test) {
-    test.expect(2);
+    test.expect(3);
 
     var actualA = grunt.file.read('tmp/a.html');
     var expectedA = grunt.file.read('test/expected/a.html');
@@ -37,6 +37,10 @@ exports.combo_html_css_js = {
     var actualB = grunt.file.read('tmp/b.html');
     var expectedB = grunt.file.read('test/expected/b.html');
     test.equal(actualB, expectedB, 'should describe what the external resource is.');
+
+    var actualC = grunt.file.read('tmp/c.html');
+    var expectedC = grunt.file.read('test/expected/c.html');
+    test.equal(actualC, expectedC, 'should describe what the external resource is.');
 
     test.done();
   },

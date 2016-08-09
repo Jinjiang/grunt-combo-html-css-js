@@ -23,26 +23,53 @@ module.exports = function (grunt) {
    * @return {string}
    */
   function combo(filepath) {
-    var cssHrefPattern = /<link(?:[^>]*) href="([^"]+)"(?:[^>]*)>/g;
-    var jsSrcPattern = /<script(?:[^>]*) src="([^"]+)"(?:[^>]*)>/g;
+    var linkPattern = /<link\s([^>]+)>/g;
+    var scriptPattern = /<script\s([^>]+)>/g;
 
     var html = grunt.file.read(filepath);
 
-    html = html.replace(cssHrefPattern, function (openTag, href) {
-      if (href.match(/\/\//)) {
-        return openTag;
+    html = html.replace(linkPattern, function (content) {
+      var href = getAttribute(content, 'href');
+      var ignore = getAttribute(content, 'ignore');
+
+      if (href.match(/\/\//) || isTruthy(ignore)) {
+        return content;
       }
       return '<style>\n' + grunt.file.read(path.join(filepath, '../', href)) + '\n</style>';
     });
 
-    html = html.replace(jsSrcPattern, function (openTag, src) {
-      if (src.match(/\/\//)) {
-        return openTag;
+    html = html.replace(scriptPattern, function (content) {
+      var src = getAttribute(content, 'src');
+      var ignore = getAttribute(content, 'ignore');
+
+      if (src.match(/\/\//) || isTruthy(ignore)) {
+        return content;
       }
       return '<script>\n' + grunt.file.read(path.join(filepath, '../', src)) + '\n';
     });
 
     return html;
+  }
+
+  function isTruthy(str) {
+    return str !== 'false' && str !== undefined
+  }
+
+  function getAttribute(content, name) {
+    var attrs = content.match(/(?!\s)[^<>\s]+/g) || [];
+    for (var i = 0; i < attrs.length; i++) {
+      var attr = attrs[i];
+      var pairs = attr.split('=', 2);
+      if (pairs.length === 1) {
+        pairs[1] = '';
+      }
+      if (pairs[0] === name) {
+        // remove "..." or '...'
+        return pairs[1].replace(/('|").+\1/, function (str) {
+          return str.substring(1, str.length - 1);
+        });
+      }
+    }
   }
 
   grunt.registerMultiTask('comboall', 'Combine css links and javscript files to html file with inline tags automatically', function() {
