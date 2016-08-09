@@ -1,7 +1,7 @@
 {
   "name": "grunt-combo-html-css-js",
   "description": "Combine css links and javscript files to html file with inline tags automatically",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://github.com/jinjiang/grunt-combo-html-css-js",
   "author": {
     "name": "Jinjiang",
