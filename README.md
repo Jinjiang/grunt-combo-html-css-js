@@ -39,6 +39,8 @@ grunt.initConfig({
 
 In this example, `src/target.html` is the source file which may has some `<link>` or `<script>` tags to use css / javascript file. And `dest/combo.html` is the will-built file which join all relative css / javascript files and the own html together.
 
+Note: The *absolute* css or javascript link will not be joined, but still use the external way. And if the `<link>` or `<script>` has an `ignore` attribute it will be skipped (v0.1.2+).
+
 #### Source File `src/target.html`:
 
 ```html
@@ -86,10 +88,10 @@ grunt.initConfig({
 </html>
 ```
 
-Note: the absolute css or javascript link will not be joined, but still use the external way.
-
 ## Contributing
+
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
+
 _(Nothing yet)_
